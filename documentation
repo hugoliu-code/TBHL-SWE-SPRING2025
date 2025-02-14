@@ -2,3 +2,47 @@ Backend APIs:
 1. Post request for login
 2. Post request for storing workouts in database
 3. Get request for getting the stretches to send to frontend
+
+===== CREATING WORKOUTS AND GENERATING STRETCHING PLANS =====
+
+/start_session (GET)
+input: {
+session_name: string,
+}
+
+- creates new workout in database
+- Assigns it an id, such as "Workout1" or a custom one maybe
+
+/log_workout (POST)
+input: {
+exercise_name: string,
+session_id: string,
+}
+
+- push the exercise to the session_id
+
+/create_stretch_plan (GET)
+input: {
+session_name: string
+}
+output: {
+TO BE DETERMINED
+}
+
+- given a session name, generate and return a plan
+
+===== INFORMATION FOR THE FRONTEND TO DISPLAY =====
+
+/get_sessions (GET)
+
+- returns all stored sessions
+
+/get_workouts (GET)
+
+- returns all stored workouts in a session
+
+
+===== NOTES FOR FUTURE =====
+
+- will have endpoints for deleting and modifying, if needed in the future
+
