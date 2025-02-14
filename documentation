@@ -1,0 +1,4 @@
+Backend APIs:
+1. Post request for login
+2. Post request for storing workouts in database
+3. Get request for getting the stretches to send to frontend
