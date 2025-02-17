@@ -1,4 +1,5 @@
 Backend APIs:
+
 1. Post request for login
 2. Post request for storing workouts in database
 3. Get request for getting the stretches to send to frontend
@@ -13,7 +14,7 @@ session_name: string,
 - creates new workout in database
 - Assigns it an id, such as "Workout1" or a custom one maybe
 
-/log_workout (POST)
+/log_exercise (POST)
 input: {
 exercise_name: string,
 session_id: string,
@@ -37,12 +38,14 @@ TO BE DETERMINED
 
 - returns all stored sessions
 
-/get_workouts (GET)
+/get_exercises (GET)
 
-- returns all stored workouts in a session
+- returns all stored exercises in a session
 
+/get_stretch_routine (GET)
+
+- Get a stretching routine from a workout
 
 ===== NOTES FOR FUTURE =====
 
 - will have endpoints for deleting and modifying, if needed in the future
-
