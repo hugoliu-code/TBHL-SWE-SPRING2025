@@ -9,7 +9,7 @@ def hello_world():
     return "<p>Hello, World!</p>"
 
 
-@app.route("/create_new_user", methods = ["GET"])
+@app.route("/create_new_user", methods = ["POST"])
 def create_new_user_endpoint():
     data = request.json
     try:
