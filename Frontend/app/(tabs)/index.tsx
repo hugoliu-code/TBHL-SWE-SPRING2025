@@ -8,7 +8,7 @@ import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { IconSymbol } from '@/components/ui/IconSymbol';
-import { NavigationContainer, useNavigation } from '@react-navigation/native';
+import { NavigationContainer, useNavigation, useRoute } from '@react-navigation/native';
 
 export default function TabTwoScreen() {
   const [username, setUsername] = useState('');
@@ -45,7 +45,7 @@ export default function TabTwoScreen() {
       if (response.ok) {
 	  // isLoggedIn = true;
 	  setLogged(true);
-        setSuccessMessage('User created successfully!');
+        setSuccessMessage('Success! You\'re ready to Stretch with Stretch Sensei!');
         setErrorMessage('');
 	  
       } else {
@@ -55,7 +55,7 @@ export default function TabTwoScreen() {
 	  isLoggedIn = false;
       }
     } catch (error) {
-      setErrorMessage('Failed to create user with error \"' + error + '\".');
+      setErrorMessage('Failed to verify user with error \"' + error + '\".');
       setSuccessMessage('');
     }
   };
@@ -82,10 +82,10 @@ export default function TabTwoScreen() {
           placeholder="Enter username"
           style={styles.input}
         />
-        <Button title="Sign Up or Login" onPress={createUser} />
+          <Button title="Sign Up or Login" onPress={createUser} />
         
           {successMessage ? <ThemedText style={styles.successMessage}>{successMessage}</ThemedText> : null}
-      {isLoggedIn ? <Button title="Enter!" onPress={() => navigation.navigate('(tabs)/settings')}/> : null}
+      {isLoggedIn ? <Button title="Enter!" onPress={() => navigation.navigate('(tabs)/home', { username })}/> : null}
 
         {errorMessage ? <ThemedText style={styles.errorMessage}>{errorMessage}</ThemedText> : null}
       </ThemedView>
