@@ -47,7 +47,7 @@ def create_stretch_plan_endpoint():
         return jsonify({"response": "Something went wrong"}), 400
 
 
-@app.route("/get_sessions", methods = ["GET"])
+@app.route("/get_sessions", methods = ["GET", "POST"])
 def get_sessions_endpoint():
     data = request.json
     try:
