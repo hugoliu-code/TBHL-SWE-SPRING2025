@@ -1,9 +1,10 @@
 from flask import Flask, request, jsonify
 from src.db_access import get_sessions, get_exercises, get_stretch_routine
 from src.db_changes import create_new_user, create_session, create_stretch_plan, add_exercise
+from flask_cors import CORS
 
 app = Flask(__name__)
-
+CORS(app)
 @app.route("/")
 def hello_world():
     return "<p>Hello, World!</p>"

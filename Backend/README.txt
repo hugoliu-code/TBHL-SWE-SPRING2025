@@ -1,5 +1,8 @@
 Running/Testing Backend
 
+Make sure all requirements are installed
+pip install -r /path/to/requirements.txt
+
 cd into backend directory and run flask with debugging turned on
 - cd backend
 - flask run --debug
