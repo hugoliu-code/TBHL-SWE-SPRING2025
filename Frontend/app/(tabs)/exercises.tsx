@@ -6,6 +6,7 @@ import {
   TextInput,
   Button,
   View,
+  Modal,
 } from "react-native";
 import { Link } from "expo-router";
 
@@ -21,27 +22,31 @@ import {
   useRoute,
 } from "@react-navigation/native";
 
-export default function Home(username) {
-  const [sessions, setSessions] = useState("");
+export default function Exercises(username, sessionName) {
+  const [sessions, setSessions] = useState([]);
   const [sessionList, setSessionList] = useState<string[]>([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [isLoggedIn, setLogged] = useState("");
 
+  const [exercises, setExercises] = useState([]);
+  const [exerciseList, setExerciseList] = useState<string[]>([]);
+
   const navigation = useNavigation();
   const route = useRoute();
-  const getSessions = async (
-    username: string
+  const getExercises = async (
+    username: string,
+    session_name: string
   ): Promise<SessionResponse | null> => {
     // const username = route.params?.username;
     const url = "http://localhost:5000/get_sessions";
     const payload = {
       UID: username,
+      session_name: session_name,
     };
 
     try {
-      const response = await fetch(`http://localhost:5000/get_sessions`, {
-        // const response = fetch(`http://localhost:5000/get_sessions?UID=${encodeURIComponent(UID)}`, {
+      const response = await fetch(`http://localhost:5000/get_exercises`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -52,75 +57,37 @@ export default function Home(username) {
       console.log(JSON.stringify(payload));
       console.log(response);
 
-      // const result = await response.json();
-      // console.log(result);
-
       const data: SessionResponse = await response.json();
       return data;
-      // const { response: responseType, sessions } = data;
-      // console.log("Response:", responseType);
-      // console.log("Sessions:", sessions);
-
-      if (sessions.length > 0) {
-        console.log("First:", sessions[0]);
-      }
-
-      //     if (response.ok) {
-      //       setSuccessMessage('User created successfully!');
-      //         setErrorMessage('');
-      //     } else {
-      //       setErrorMessage(result.message || 'An error occurred, please check the input and try again.');
-      // 	console.log(result.message);
-      //         setSuccessMessage('');
-      // 	  isLoggedIn = false;
-      //     }
     } catch (error) {
       return null;
-      //   setErrorMessage('Failed to create user with error \"' + error + '\".');
-      //   setSuccessMessage('');
     }
   };
 
   useEffect(() => {
     const username = route.params?.username;
+    const session_name = route.params?.sessionName;
     if (username) {
-      getSessions(username).then((sessionData) => {
-        if (sessionData) {
-          const { response, sessions } = sessionData;
+      getExercises(username, session_name).then((exerciseData) => {
+        if (exerciseData) {
+          const { response, exercises } = exerciseData;
           console.log("Response:", response);
-          console.log("Sessions:", sessions);
-          setSessionList(sessions);
+          console.log("Sessions:", exercises);
+          setExerciseList(exercises);
         } else {
-          setErrorMessage("Failed to fetch sessions.");
+          setErrorMessage("Failed to fetch exercises");
         }
       });
     }
   }, [route.params]);
 
-  const handleSessionPress = (sessionName: string) => {
+  const handleAddPress = () => {
     const username = route.params?.username;
-    console.log(`Session ${sessionName} pressed`);
-    navigation.navigate("(tabs)/exercises", {
-      username: username,
-      sessionName: sessionName,
-    });
-
+    const session_name = route.params?.sessionName;
+    console.log(`ADD EXERCISE ${username} pressed`);
+    console.log(`ADD EXERCISE ${session_name} pressed`);
     // TODO
   };
-  // useEffect(() => {
-  //     // console.log("wheeee");
-  //     // getSessions(username);
-
-  //     getSessions(username).then((sessionData) => {
-  // 	  const { response, sessions } = sessionData;
-  // 	  console.log("foo");
-  // 	  console.log("Response:", response);
-  // 	  console.log("Sessions:", sessions);
-  // 	  // for (session in sessions) {
-  // 	  //     console.log(session[session]);
-  // 	  // }
-  //     });
-  // });
 
   return (
     <ParallaxScrollView
@@ -135,16 +102,13 @@ export default function Home(username) {
       }
     >
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">My Sessions</ThemedText>
+        <ThemedText type="title">My Exercises</ThemedText>
+        <Button key={"ADD EXERCISE"} title={"Add Exercise"} />
       </ThemedView>
 
       <ThemedView>
-        {sessionList.map((session, index) => (
-          <Button
-            key={index}
-            title={session}
-            onPress={() => handleSessionPress(session)}
-          />
+        {exerciseList.map((exercise, index) => (
+          <Button key={index} title={exercise} />
         ))}
         {errorMessage && (
           <ThemedText style={styles.errorMessage}>{errorMessage}</ThemedText>
@@ -187,5 +151,31 @@ const styles = StyleSheet.create({
   errorMessage: {
     color: "red",
     marginTop: 10,
+  },
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  text: {
+    fontSize: 18,
+    marginBottom: 20,
+  },
+  modalBackground: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent background
+  },
+  modalContainer: {
+    backgroundColor: "white",
+    padding: 20,
+    borderRadius: 10,
+    width: 300,
+    alignItems: "center",
+  },
+  modalText: {
+    fontSize: 18,
+    marginBottom: 15,
   },
 });
