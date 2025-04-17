@@ -57,7 +57,7 @@ def get_sessions_endpoint():
     except:
         return jsonify({"response": "Something went wrong"}), 400
 
-@app.route("/get_exercises", methods = ["GET"])
+@app.route("/get_exercises", methods = ["GET","POST"])
 def get_exercises_endpoint():
     data = request.json
     try:
