@@ -1,10 +1,12 @@
 from flask import Flask, request, jsonify
+
 from src.db_access import get_sessions, get_exercises
 from src.db_changes import create_new_user, create_session, add_exercise
 from src.gpt_query import get_stretch_routine
+from flask_cors import CORS
 
 app = Flask(__name__)
-
+CORS(app)
 @app.route("/")
 def hello_world():
     return "<p>Hello, World!</p>"
@@ -57,7 +59,7 @@ def get_sessions_endpoint():
     except:
         return jsonify({"response": "Something went wrong"}), 400
 
-@app.route("/get_exercises", methods = ["GET"])
+@app.route("/get_exercises", methods = ["GET","POST"])
 def get_exercises_endpoint():
     data = request.json
     try:
