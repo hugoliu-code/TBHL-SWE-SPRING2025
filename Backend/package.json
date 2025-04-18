@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "firebase": "^11.6.0",
+    "firebase-admin": "^13.2.0",
+    "flask": "^0.2.10"
+  }
+}

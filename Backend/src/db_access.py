@@ -16,8 +16,3 @@ def get_exercises(UID: str, session_name) -> list[str]:
     doc = user_ref.get()
     return doc.to_dict()["Exercises"]
 
-def get_stretch_routine(UID: str, session_name) -> dict:
-    # return a dictionary representing a stretch routine
-    user_ref = db.collection(UID).document(session_name)
-    doc = user_ref.get()
-    return doc.to_dict()["Stretches"]
