@@ -13,5 +13,11 @@ Certifications
     it will be detected as compromised and deleted.
     
     Once you get the file, make sure it is named "firebase_cert.json", and put
-    it in the "keys" directory
+    it in the "keys" directory.
 
+    You may be missing the ChatGPT key,
+    contact Thomas so he can send it to you. We can't store it on github because
+    it will be detected as compromised and deleted.
+
+    Once you get the ChatGPT key, make sure it is stored in a new file called "gptkey.json", 
+    and put it in the "keys" directory.

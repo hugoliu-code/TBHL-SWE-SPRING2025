@@ -1,6 +1,8 @@
 from flask import Flask, request, jsonify
-from src.db_access import get_sessions, get_exercises, get_stretch_routine
-from src.db_changes import create_new_user, create_session, create_stretch_plan, add_exercise
+
+from src.db_access import get_sessions, get_exercises
+from src.db_changes import create_new_user, create_session, add_exercise
+from src.gpt_query import get_stretch_routine
 from flask_cors import CORS
 
 app = Flask(__name__)
