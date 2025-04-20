@@ -69,7 +69,7 @@ def get_exercises_endpoint():
         return jsonify({"response": "Something went wrong"}), 400
 
 
-@app.route("/get_stretch_routine", methods = ["GET"])
+@app.route("/get_stretch_routine", methods = ["GET","POST"])
 def get_stretch_routine_endpoint():
     data = request.json
     try:
