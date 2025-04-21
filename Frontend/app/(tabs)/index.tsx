@@ -124,7 +124,7 @@ export default function TabTwoScreen() {
         return;
       }
       setErrorMessage(
-        "An error occurred! Please check the input and try again. (Username should be in email form)"
+        "An error occurred! Please check the input and try again. (Username should be in email form) (Password at least 6 characters)"
       );
       setSuccessMessage("");
       setLogged(false);
