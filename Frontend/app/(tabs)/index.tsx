@@ -27,7 +27,7 @@ import {
   AuthError,
   UserCredential,
 } from "firebase/auth";
-import { auth } from "../../firebase_auth";
+import { auth } from "../../keys/firebase_auth";
 
 export default function TabTwoScreen() {
   const [username, setUsername] = useState("");
