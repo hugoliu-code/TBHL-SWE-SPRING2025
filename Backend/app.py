@@ -21,7 +21,7 @@ def create_new_user_endpoint():
     except:
         return jsonify({"response": "Something went wrong"}), 400
 
-@app.route("/create_session", methods = ["GET"])
+@app.route("/create_session", methods = ["POST"])
 def create_session_endpoint():
     data = request.json
     try:
@@ -39,16 +39,6 @@ def add_exercise_endpoint():
         return jsonify({"response": "success"}), 200
     except:
         return jsonify({"response": "Something went wrong"}), 400
-
-@app.route("/create_stretch_plan", methods = ["GET"])
-def create_stretch_plan_endpoint():
-    data = request.json
-    try:
-        create_stretch_plan(data["UID"], data["session_name"])
-        return jsonify({"response": "success"}), 200
-    except:
-        return jsonify({"response": "Something went wrong"}), 400
-
 
 @app.route("/get_sessions", methods = ["GET", "POST"])
 def get_sessions_endpoint():
