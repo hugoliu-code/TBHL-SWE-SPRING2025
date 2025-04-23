@@ -1,39 +1,34 @@
 import React, { useState, useEffect } from "react";
-import {
-  StyleSheet,
-  Image,
-  Platform,
-  TextInput,
-  Button,
-  View,
-} from "react-native";
-import { Link } from "expo-router";
+import { Stack, router } from "expo-router";
+import { StyleSheet, Button, TextInput, Image } from "react-native";
 
-import { Collapsible } from "@/components/Collapsible";
-import { ExternalLink } from "@/components/ExternalLink";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { IconSymbol } from "@/components/ui/IconSymbol";
-import {
-  NavigationContainer,
-  useNavigation,
-  useRoute,
-} from "@react-navigation/native";
+import { useRoute, RouteProp } from "@react-navigation/native";
 
-export default function Home(username) {
-  const [sessions, setSessions] = useState("");
+export interface SessionResponse {
+  sessions: string[];
+  response: string;
+}
+
+export interface AddSessionResponse {
+  response: string;
+}
+
+type RouteParams = {
+  username: string;
+};
+export default function Home() {
   const [sessionList, setSessionList] = useState<string[]>([]);
   const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
-  const [isLoggedIn, setLogged] = useState("");
+  const [sessionNameChoice, setSessionNameChoice] = useState("");
+  const route = useRoute<RouteProp<Record<string, RouteParams>, string>>();
 
-  const navigation = useNavigation();
-  const route = useRoute();
+  const username = route.params?.username;
   const getSessions = async (
     username: string
   ): Promise<SessionResponse | null> => {
-    // const username = route.params?.username;
     const url = "http://localhost:5000/get_sessions";
     const payload = {
       UID: username,
@@ -41,7 +36,6 @@ export default function Home(username) {
 
     try {
       const response = await fetch(`http://localhost:5000/get_sessions`, {
-        // const response = fetch(`http://localhost:5000/get_sessions?UID=${encodeURIComponent(UID)}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -52,32 +46,10 @@ export default function Home(username) {
       console.log(JSON.stringify(payload));
       console.log(response);
 
-      // const result = await response.json();
-      // console.log(result);
-
       const data: SessionResponse = await response.json();
       return data;
-      // const { response: responseType, sessions } = data;
-      // console.log("Response:", responseType);
-      // console.log("Sessions:", sessions);
-
-      if (sessions.length > 0) {
-        console.log("First:", sessions[0]);
-      }
-
-      //     if (response.ok) {
-      //       setSuccessMessage('User created successfully!');
-      //         setErrorMessage('');
-      //     } else {
-      //       setErrorMessage(result.message || 'An error occurred, please check the input and try again.');
-      // 	console.log(result.message);
-      //         setSuccessMessage('');
-      // 	  isLoggedIn = false;
-      //     }
     } catch (error) {
       return null;
-      //   setErrorMessage('Failed to create user with error \"' + error + '\".');
-      //   setSuccessMessage('');
     }
   };
 
@@ -98,59 +70,114 @@ export default function Home(username) {
   }, [route.params]);
 
   const handleSessionPress = (sessionName: string) => {
-    const username = route.params?.username;
     console.log(`Session ${sessionName} pressed`);
-    navigation.navigate("(tabs)/exercises", {
-      username: username,
-      sessionName: sessionName,
+
+    router.push({
+      pathname: "/(tabs)/exercises",
+      params: {
+        username,
+        sessionName,
+      },
     });
-
-    // TODO
   };
-  // useEffect(() => {
-  //     // console.log("wheeee");
-  //     // getSessions(username);
 
-  //     getSessions(username).then((sessionData) => {
-  // 	  const { response, sessions } = sessionData;
-  // 	  console.log("foo");
-  // 	  console.log("Response:", response);
-  // 	  console.log("Sessions:", sessions);
-  // 	  // for (session in sessions) {
-  // 	  //     console.log(session[session]);
-  // 	  // }
-  //     });
-  // });
+  const addSession = async (
+    username: string,
+    session_name: string
+  ): Promise<AddSessionResponse | null> => {
+    // const username = route.params?.username;
+    const url = "http://localhost:5000/create_session";
+    const payload = {
+      UID: username,
+      session_name: session_name,
+    };
 
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      console.log(JSON.stringify(payload));
+      console.log(response);
+
+      const data: AddSessionResponse = await response.json();
+      return data;
+    } catch (error) {
+      return null;
+    }
+  };
+
+  const handleAddPress = () => {
+    // Add Session, and reload the list of Sessions
+    const username = route.params?.username;
+
+    //Add Session
+    addSession(username, sessionNameChoice);
+    //Reset Val
+    setSessionNameChoice("");
+
+    if (username) {
+      getSessions(username).then((sessionData) => {
+        if (sessionData) {
+          const { response, sessions } = sessionData;
+          console.log("Response:", response);
+          console.log("Sessions:", sessions);
+          setSessionList(sessions);
+        } else {
+          setErrorMessage("Failed to fetch sessions.");
+        }
+      });
+    }
+  };
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: "#D0D0D0", dark: "#353636" }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }
-    >
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">My Sessions</ThemedText>
-      </ThemedView>
-
-      <ThemedView>
-        {sessionList.map((session, index) => (
-          <Button
-            key={index}
-            title={session}
-            onPress={() => handleSessionPress(session)}
+    <>
+      <ParallaxScrollView
+        headerBackgroundColor={{ light: "#D0D0D0", dark: "#353636" }}
+        headerImage={
+          <Image
+            source={require("../../assets/images/Dumbbell.jpg")} // or wherever your image is
+            style={{ width: "100%", height: 300 }}
           />
-        ))}
-        {errorMessage && (
-          <ThemedText style={styles.errorMessage}>{errorMessage}</ThemedText>
-        )}
-      </ThemedView>
-    </ParallaxScrollView>
+        }
+      >
+        <ThemedView style={styles.titleContainer}>
+          <ThemedText type="title">Current Sessions</ThemedText>
+        </ThemedView>
+
+        <ThemedView>
+          {sessionList.map((session, index) => (
+            <Button
+              key={index}
+              title={session}
+              onPress={() => handleSessionPress(session)}
+            />
+          ))}
+          {errorMessage && (
+            <ThemedText style={styles.errorMessage}>{errorMessage}</ThemedText>
+          )}
+        </ThemedView>
+        <ThemedView style={styles.titleContainer}>
+          <ThemedText type="title">New Session</ThemedText>
+          <Button key={"ADD"} title={"Add"} onPress={handleAddPress} />
+        </ThemedView>
+        <ThemedView style={styles.formContainer}>
+          <TextInput
+            value={sessionNameChoice}
+            onChangeText={setSessionNameChoice}
+            placeholder="New Session Name"
+            style={styles.input}
+          />
+        </ThemedView>
+      </ParallaxScrollView>
+
+      <>
+        <Stack.Screen options={{ title: "Logout" }} />
+      </>
+    </>
   );
 }
 

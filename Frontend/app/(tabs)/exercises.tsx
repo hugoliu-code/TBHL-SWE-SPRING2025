@@ -1,58 +1,54 @@
 import React, { useState, useEffect } from "react";
-import {
-  StyleSheet,
-  Image,
-  Platform,
-  TextInput,
-  Button,
-  View,
-  Modal,
-} from "react-native";
-import { Link } from "expo-router";
-
-import { Collapsible } from "@/components/Collapsible";
-import { ExternalLink } from "@/components/ExternalLink";
+import { StyleSheet, TextInput, Button, View, Image } from "react-native";
+import { Stack } from "expo-router";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { IconSymbol } from "@/components/ui/IconSymbol";
-import {
-  NavigationContainer,
-  useNavigation,
-  useRoute,
-} from "@react-navigation/native";
+import { useRoute, RouteProp } from "@react-navigation/native";
 
-export default function Exercises(username, sessionName) {
-  const [sessions, setSessions] = useState([]);
-  const [sessionList, setSessionList] = useState<string[]>([]);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
-  const [isLoggedIn, setLogged] = useState("");
-
-  const [exercises, setExercises] = useState([]);
-  const [exerciseList, setExerciseList] = useState<string[]>([]);
-
-    const [exerciseNameChoice, setExerciseNameChoice] = useState("");
-const [data, setData] = useState<StretchData | null>(null);
-
-    interface Stretch {
-  name: string;
-  target: string;
-  time: number;
+type RouteParams = {
+  username: string;
+  sessionName: string;
+};
+export interface Stretch {
+  Name: string;
+  Duration: string;
+  Instructions: number;
 }
 
-interface StretchData {
+export interface StretchData {
   Stretch_count: number;
   stretches: Stretch[];
 }
 
-  const navigation = useNavigation();
-  const route = useRoute();
+export interface ExercisesResponse {
+  response: string;
+  exercises: string[];
+}
+
+export interface AddExerciseResponse {
+  response: string;
+}
+
+export interface GenerateResponse {
+  response: string;
+  routine: StretchData;
+}
+
+export default function Exercises() {
+  const [errorMessage, setErrorMessage] = useState("");
+  const [exerciseList, setExerciseList] = useState<string[]>([]);
+  const [exerciseNameChoice, setExerciseNameChoice] = useState("");
+  const [data, setData] = useState<StretchData | null>(null);
+  const [GeneratingResponse, setGeneratingResponse] = useState("");
+  const [isViewingStretches, setViewingStretches] = useState(false);
+
+  const route = useRoute<RouteProp<Record<string, RouteParams>, string>>();
+
   const getExercises = async (
     username: string,
     session_name: string
-  ): Promise<SessionResponse | null> => {
-    // const username = route.params?.username;
+  ): Promise<ExercisesResponse | null> => {
     const url = "http://localhost:5000/get_exercises";
     const payload = {
       UID: username,
@@ -60,7 +56,7 @@ interface StretchData {
     };
 
     try {
-      const response = await fetch(`http://localhost:5000/get_exercises`, {
+      const response = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -71,7 +67,7 @@ interface StretchData {
       console.log(JSON.stringify(payload));
       console.log(response);
 
-      const data: SessionResponse = await response.json();
+      const data: ExercisesResponse = await response.json();
       return data;
     } catch (error) {
       return null;
@@ -80,19 +76,19 @@ interface StretchData {
 
   const addExercise = async (
     username: string,
-      session_name: string,
-      exercise_name: string
-  ): Promise<SessionResponse | null> => {
+    session_name: string,
+    exercise_name: string
+  ): Promise<AddExerciseResponse | null> => {
     // const username = route.params?.username;
     const url = "http://localhost:5000/add_exercise";
     const payload = {
       UID: username,
-	session_name: session_name,
-	exercise_name: exercise_name,
+      session_name: session_name,
+      exercise_name: exercise_name,
     };
 
     try {
-      const response = await fetch(`http://localhost:5000/add_exercise`, {
+      const response = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -103,7 +99,7 @@ interface StretchData {
       console.log(JSON.stringify(payload));
       console.log(response);
 
-      const data: SessionResponse = await response.json();
+      const data: AddExerciseResponse = await response.json();
       return data;
     } catch (error) {
       return null;
@@ -111,17 +107,17 @@ interface StretchData {
   };
   const generateStretch = async (
     username: string,
-      session_name: string,
-  ): Promise<SessionResponse | null> => {
+    session_name: string
+  ): Promise<GenerateResponse | null> => {
     // const username = route.params?.username;
     const url = "http://localhost:5000/get_stretch_routine";
     const payload = {
       UID: username,
-	session_name: session_name,
+      session_name: session_name,
     };
-
+    setGeneratingResponse("GENERATING STRETCH ROUTINE");
     try {
-	const response = await fetch(`http://localhost:5000/get_stretch_routine`, {
+      const response = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -132,14 +128,17 @@ interface StretchData {
       console.log(JSON.stringify(payload));
       console.log(response);
 
-      const data: SessionResponse = await response.json();
+      const data: GenerateResponse = await response.json();
+      setGeneratingResponse("");
       return data;
     } catch (error) {
+      setGeneratingResponse("");
       return null;
     }
   };
 
   useEffect(() => {
+    //Fetch exercises upon opening
     const username = route.params?.username;
     const session_name = route.params?.sessionName;
     if (username) {
@@ -156,18 +155,22 @@ interface StretchData {
     }
   }, [route.params]);
 
+  const backToExercises = () => {
+    setViewingStretches(false);
+  };
+
   const handleAddPress = () => {
+    // Add Exercise, and reload the list of exercises
     const username = route.params?.username;
     const session_name = route.params?.sessionName;
-    const exercise_name = route.params?.exerciseNameChoice;
+
     console.log(`ADD EXERCISE ${username} pressed`);
     console.log(`ADD EXERCISE ${session_name} pressed`);
-    console.log(`ADD EXERCISE ${exercise_name} pressed`);
     console.log(`ADD EXERCISE ${exerciseNameChoice} pressed`);
-    // TODO
 
-      addExercise(username, session_name, exerciseNameChoice);
-          if (username) {
+    addExercise(username, session_name, exerciseNameChoice);
+    setExerciseNameChoice("");
+    if (username) {
       getExercises(username, session_name).then((exerciseData) => {
         if (exerciseData) {
           const { response, exercises } = exerciseData;
@@ -179,98 +182,126 @@ interface StretchData {
         }
       });
     }
+  };
 
- };
   const generateStretchRoutine = () => {
+    // Generate a stretch routine given the exercises
     const username = route.params?.username;
     const session_name = route.params?.sessionName;
     console.log(`GENERATE ${username} pressed`);
     console.log(`GENERATE ${session_name} pressed`);
-    // TODO
 
-      // const stretches = generateStretch(username, session_name);
-      // console.log(stretches);
-      
-      if (username) {
+    if (username && session_name) {
+      //Generate stretch routine and set variable
+      setViewingStretches(true);
       generateStretch(username, session_name).then((stretchData) => {
         if (stretchData) {
           const { response, routine } = stretchData;
           console.log("Response:", response);
           console.log("Stretches:", routine);
-          // console.log("Test:", stretchData);
-          // setErrorMessage(stretchData);
-	    // testparse = JSON.parse(routine);
           console.log("Test:", routine.Stretch_count);
-	      // const jsonData: StretchData = await response.json();
-        setData(routine);
-          // setExerciseList(Array.isArray(routine.stretches));
+          setData(routine);
         } else {
           setErrorMessage("Failed to fetch exercises");
         }
       });
     }
-      if (username) {
-      getExercises(username, session_name).then((exerciseData) => {
-        if (exerciseData) {
-          const { response, exercises } = exerciseData;
-          console.log("Response:", response);
-          console.log("Exercises:", exercises);
-          setExerciseList(exercises);
-        } else {
-          setErrorMessage("Failed to fetch exercises");
-        }
-      });
-    }
-
- };
+  };
 
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: "#D0D0D0", dark: "#353636" }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }
-    >
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">My Exercises</ThemedText>
-          <Button key={"ADD CUSTOM EXERCISE"} title={"Add Custom Exercise"} onPress={handleAddPress}/>
-          <Button key={"GENERATE STRETCHES"} title={"Generate Stretches"} onPress={generateStretchRoutine}/>
-      </ThemedView>
-      <ThemedView style={styles.formContainer}>
-        <TextInput
-          value={exerciseNameChoice}
-          onChangeText={setExerciseNameChoice}
-          placeholder="Enter custom exercise"
-          style={styles.input}
-        />
-      </ThemedView>
-      <ThemedView>
-      {data?.stretches.map((stretch, index) => (
-          <View key={index}>
-	      <Button title={stretch.Name}/>
-	  <ThemedText>
-	      {stretch.Duration}
-	  {stretch.Instructions}
-	  </ThemedText>
-	      </View>
-      ))}
-      {Array.isArray(exerciseList) && exerciseList.length > 0 ? (
-	    exerciseList.map((exercise, index) => (
-		<Button key={index} title={exercise} />
-	    ))) : (
-	    <ThemedText style={styles.errorMessage}>No exercises available</ThemedText>)}
-        {errorMessage && (
-          <ThemedText style={styles.errorMessage}>{errorMessage}</ThemedText>
+    <>
+      <ParallaxScrollView
+        headerBackgroundColor={{ light: "#D0D0D0", dark: "#353636" }}
+        headerImage={
+          <Image
+            source={require("../../assets/images/Stretching2.jpg")} // or wherever your image is
+            style={{ width: "100%", height: 300 }}
+          />
+        }
+      >
+        {!isViewingStretches && (
+          <View>
+            <ThemedView style={styles.titleContainer}>
+              <ThemedText type="title">My Exercises</ThemedText>
+              <Button
+                key={"ADD CUSTOM EXERCISE"}
+                title={"Add Custom Exercise"}
+                onPress={handleAddPress}
+              />
+              <Button
+                key={"GENERATE STRETCHES"}
+                title={"Generate Stretches"}
+                onPress={generateStretchRoutine}
+              />
+            </ThemedView>
+            <ThemedView style={styles.formContainer}>
+              <TextInput
+                value={exerciseNameChoice}
+                onChangeText={setExerciseNameChoice}
+                placeholder="Enter custom exercise"
+                style={styles.input}
+              />
+            </ThemedView>
+            <ThemedView>
+              {Array.isArray(exerciseList) && exerciseList.length > 0 ? (
+                exerciseList.map((exercise, index) => (
+                  <Button key={index} title={exercise} />
+                ))
+              ) : (
+                <ThemedText style={styles.errorMessage}>
+                  No exercises available
+                </ThemedText>
+              )}
+              {errorMessage && (
+                <ThemedText style={styles.errorMessage}>
+                  {errorMessage}
+                </ThemedText>
+              )}
+            </ThemedView>
+          </View>
         )}
-      </ThemedView>
-    </ParallaxScrollView>
+        {isViewingStretches && (
+          <View>
+            <Button
+              key={"BACK TO EXERCISES"}
+              title={"Back to Exercises"}
+              onPress={backToExercises}
+            />
+            {GeneratingResponse == "" && (
+              <ThemedView>
+                <ThemedText type="title">My Stretches</ThemedText>
+                {data?.stretches.map((stretch, index) => (
+                  <View key={index}>
+                    <Button title={stretch.Name} color="red" />
+                    <ThemedText>
+                      {"Time: "}
+                      {stretch.Duration}
+                      {"\n"}
+                      {"Instructions: "}
+                      {stretch.Instructions}
+                    </ThemedText>
+                  </View>
+                ))}
+              </ThemedView>
+            )}
+            {GeneratingResponse != "" && (
+              <ThemedView>
+                <ThemedText type="title">Generating Response</ThemedText>
+              </ThemedView>
+            )}
+          </View>
+        )}
+      </ParallaxScrollView>
+      <>
+        <Stack.Screen options={{ title: "Back to Sessions" }} />
+      </>
+    </>
   );
 }
+
+Exercises.options = {
+  headerBackTitle: "Go Back", // custom back label just for this screen
+};
 
 const styles = StyleSheet.create({
   headerImage: {
