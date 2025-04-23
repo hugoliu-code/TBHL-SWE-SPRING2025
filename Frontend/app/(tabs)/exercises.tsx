@@ -159,7 +159,7 @@ export default function Exercises() {
     setViewingStretches(false);
   };
 
-  const handleAddPress = () => {
+  const handleAddPress = async () => {
     // Add Exercise, and reload the list of exercises
     const username = route.params?.username;
     const session_name = route.params?.sessionName;
@@ -168,7 +168,7 @@ export default function Exercises() {
     console.log(`ADD EXERCISE ${session_name} pressed`);
     console.log(`ADD EXERCISE ${exerciseNameChoice} pressed`);
 
-    addExercise(username, session_name, exerciseNameChoice);
+    await addExercise(username, session_name, exerciseNameChoice);
     setExerciseNameChoice("");
     if (username) {
       getExercises(username, session_name).then((exerciseData) => {
