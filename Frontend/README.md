@@ -4,6 +4,8 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 
 ## INSTALLING DEPENDENCIES AND RUNNING THE APP
 
+Make sure you have Node.js installed (https://nodejs.org/en/download)
+
 Make sure you are in the frontend directory
 
 1. Install dependencies
